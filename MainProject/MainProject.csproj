@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\csharp-dictionary-japanese\csharp-dictionary-japanese.csproj" />
+    <ProjectReference Include="..\csharp-journal\csharp-journal.csproj" />
+    <ProjectReference Include="..\csharp-peripherals\csharp-peripherals.csproj" />
+    <ProjectReference Include="..\csharp-metrics\csharp-metrics.csproj" />
+    <ProjectReference Include="..\csharp-mnemonics\csharp-mnemonics.csproj" />
+    <ProjectReference Include="..\csharp-graphemes\csharp-graphemes.csproj" />
+    <ProjectReference Include="..\csharp-networking\csharp-networking.csproj" />
+    <ProjectReference Include="..\csharp-uistudio\csharp-uistudio.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
