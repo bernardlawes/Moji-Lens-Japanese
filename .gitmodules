@@ -1,0 +1,24 @@
+[submodule "csharp-dictionary-japanese"]
+	path = csharp-dictionary-japanese
+	url = https://github.com/bernardlawes/csharp-dictionary-japanese.git
+[submodule "csharp-journal"]
+	path = csharp-journal
+	url = https://github.com/bernardlawes/csharp-journal.git
+[submodule "csharp-peripherals"]
+	path = csharp-peripherals
+	url = https://github.com/bernardlawes/csharp-peripherals.git
+[submodule "csharp-metrics"]
+	path = csharp-metrics
+	url = https://github.com/bernardlawes/csharp-metrics.git
+[submodule "csharp-mnemonics"]
+	path = csharp-mnemonics
+	url = https://github.com/bernardlawes/csharp-mnemonics.git
+[submodule "csharp-graphemes"]
+	path = csharp-graphemes
+	url = https://github.com/bernardlawes/csharp-graphemes.git
+[submodule "csharp-networking"]
+	path = csharp-networking
+	url = https://github.com/bernardlawes/csharp-networking.git
+[submodule "csharp-uistudio"]
+	path = csharp-uistudio
+	url = https://github.com/bernardlawes/csharp-uistudio.git
