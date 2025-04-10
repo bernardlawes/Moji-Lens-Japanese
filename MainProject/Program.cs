@@ -51,15 +51,19 @@ class Program
 
     static string libFolderPath = @"D:\Data\Dictionary\Japanese\";
     static string kanjifilename = @"kanjidic2.xml";
+    static string jmdict_m_filename = @"JMdict.xml";
+    static string jmdict_e_filename = @"JMdict_e.xml";
     static string edictfilename = @"edict2";
     static string kanjiPath = System.IO.Path.Combine(libFolderPath, kanjifilename);
     static string edictPath = System.IO.Path.Combine(libFolderPath, edictfilename);
+    static string jmdict_Path = System.IO.Path.Combine(libFolderPath, jmdict_e_filename);
+    
     public static string basePath    = AppContext.BaseDirectory;
     //public static string projPath    = string.Empty; // Directory.GetParent(AppContext.BaseDirectory)?.Parent?.Parent?.Parent?.FullName;
     public static string logsPath = @"D:\Logs\";
     public static ChronoLogger logger_error;
     public static ChronoLogger logger_event;
-
+    public static bool DebugMode = true; // Set to true for debugging purposes
 
     public static class AppPathResolver
     {
@@ -132,7 +136,9 @@ class Program
         // Application.SetDefaultFont(new Font("Arial", 9.75F));
         Console.WriteLine("Application Configuration Initialized.");
 
-        if (!Utilities.InitializeDictionaryAndTools(kanjiPath, edictPath)) return false;
+        //jmdict_Path = string.Empty;
+
+        if (!Utilities.InitializeDictionaryAndTools(kanjiPath, edictPath, jmdict_Path)) return false;
 
         return true;
     }

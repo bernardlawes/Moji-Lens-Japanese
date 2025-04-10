@@ -14,10 +14,12 @@ namespace MainProject
     {
         // Instantiate the object with user input
         static KanjiDict2_Reader _kanjiDictionary;
+        static JMDict_e_Reader _jmeDictionary;
         static EDict2_Reader _edictDictionary;
         static Kanji_API_Client _kanjiAPIClient;
         static ChronoLogger _logger_kanji;
-
+        
+        static bool useHashLookup = false;
         static string userInput = string.Empty;
 
         public static void MeasureTime(string label, Action action)
@@ -36,11 +38,11 @@ namespace MainProject
             */
         }
 
-        public static bool InitializeDictionaryAndTools(string kanjiPath, string edictPath)
+        public static bool InitializeDictionaryAndTools(string kanjiPath,  string edictPath, string jmdict_Path)
         {
 
 
-            if (!ValidateDictionaryFiles(kanjiPath, edictPath)) return false;
+            if (!ValidateDictionaryFiles(kanjiPath, edictPath, jmdict_Path)) return false;
 
             Program.logger_event.Log($"{Emoji.Clock} | Dictionaries Files Found" );
 
@@ -54,6 +56,22 @@ namespace MainProject
             Program.logger_event.Log($"{Emoji.Clock} | {msg}");
             Console.WriteLine(msg);
 
+            // Load the JMDict.xml file
+            if (File.Exists(jmdict_Path))
+            {
+                string jmdict_filename = System.IO.Path.GetFileName(jmdict_Path);
+                _jmeDictionary = new JMDict_e_Reader(jmdict_Path, useHashLookup);
+                msg = (_jmeDictionary.RecordCount == 0) ? $"Error: No records found in the {jmdict_filename} file." : $"Loaded {_jmeDictionary.RecordCount} entries from the {jmdict_filename} file.";
+                if (_jmeDictionary.RecordCount == 0) return false;
+                Program.logger_event.Log($"{Emoji.Clock} | {msg}");
+                Console.WriteLine(msg);
+            }
+            else
+            {
+                Console.WriteLine($"JMDict file not found at {jmdict_Path}");
+            }
+            
+            
             string edictfilename = System.IO.Path.GetFileName(edictPath);
             // Load the edict2 file
             _edictDictionary = new EDict2_Reader(edictPath);
@@ -72,12 +90,21 @@ namespace MainProject
 
         }
 
-        static bool ValidateDictionaryFiles(string kanjiPath, string edictPath)
+        static bool ValidateDictionaryFiles(string kanjiPath, string edictPath, string jmdictPath)
         {
             string kanjifilename = System.IO.Path.GetFileName(kanjiPath);
             // Check if the kanjidic file exists
             Console.WriteLine(File.Exists(kanjiPath) ? $"{kanjifilename} Dictionary Found." : $"\n{kanjifilename} file not found at {kanjiPath}");
             if (!File.Exists(kanjiPath)) return false;
+
+            if (!string.IsNullOrWhiteSpace(jmdictPath))
+            {
+                string jmdictfilename = System.IO.Path.GetFileName(jmdictPath);
+                // Check if the edict file exists
+                Console.WriteLine(File.Exists(edictPath) ? $"{jmdictfilename} Dictionary Found." : $"\n{jmdictfilename} file not found at {jmdictPath}");
+                if (!File.Exists(jmdictPath)) return false;
+            }
+            
 
             string edictfilename = System.IO.Path.GetFileName(edictPath);
             // Check if the edict file exists
@@ -103,29 +130,31 @@ namespace MainProject
         public static void RunInConsoleClipboard()
         {
 
-            bool quiet = true;
-
             ClipboardMonitorHost.Start(text =>
             {
                 Console.Clear();
-                if (!quiet)  Console.WriteLine($"Search Item: {text}");
+                //if (Program.DebugMode)  Console.WriteLine($"Search Item: {text}");
 
                 var stopwatch = Stopwatch.StartNew();
-                long segmentTime = 0;
-                long lookupTime = 0;
-                long loggingTime = 0;
+                long segmentTime = 0, jm_segmentandLookupTime=0;
+                long lookupTime = 0, jm_lookupTime = 0;
+                long loggingTime = 0,jm_loggingTime = 0;
 
                 int kanjiCount = 0, wordCount = 0;
 
+                var kanjis = new List<KanjiEntry>();
+                var definitions = new List<string>();
+                var jm_definitions = new List<JMDictEntry>();
+
+
                 if (!string.IsNullOrWhiteSpace(text))
-                {                 
+                {
                     var kanjisegments = _kanjiDictionary.SegmentKanji(text);
-                    var kanjis = _kanjiDictionary.LookupUniqueKanjiDefinitions(kanjisegments);
+                    kanjis = _kanjiDictionary.LookupUniqueKanjiDefinitions(kanjisegments);
                     if (kanjis != null && kanjis.Count > 0)
                     {
                         foreach (KanjiEntry res in kanjis)
                         {
-                            if (!quiet) Console.WriteLine($"{ res.Literal} : {string.Join(", ", res.Meanings)}");
                             _logger_kanji.Log($"{Emoji.Info} {res.Literal} | {string.Join(", ", res.Readings)} | {string.Join(", ", res.Meanings)} | Grade: {res.Grade} | JLPT: {res.JLPT} | Strokes: {res.StrokeCount}"); // <-- 💾 this line saves to file
                             kanjiCount++;
                         }
@@ -134,26 +163,119 @@ namespace MainProject
 
                     Console.WriteLine("\n===========================================\n");
 
-                    Console.WriteLine($"Characters : {text.Length.ToString()}");
-                    Console.WriteLine($"Kanji Count : {kanjisegments.Count.ToString()}");
-                    Console.WriteLine($"Matched Kanji : {kanjis.Count.ToString()}");
+                    Console.WriteLine($"Characters    : {text.Length.ToString()}");
+                    Console.WriteLine($"Kanji Count   : {kanjisegments.Count.ToString()}");
+                    // Console.WriteLine($"Defined Kanji : {kanjis.Count.ToString()}");
 
-                    Console.WriteLine("\n===========================================\n");
+                    Console.WriteLine("\n================= BY DIRECT ORIGINAL English Only, Only Words with Kanji ==========================\n");
 
+                    List<(string, JMDictEntry)> results = null;
+                    Dictionary<string, JMDictEntry> dict = null;
+
+                    // List of matched segments and entries (no duplicates, English only)
+                    var s3 = Stopwatch.StartNew();
+                    if (_jmeDictionary != null) results = _jmeDictionary.GetEntriesFor(text,true,true,false,true,true) as List<(string Segment, JMDictEntry Entry)>;
+                    int s3time = (int)s3.ElapsedMilliseconds;
+
+                    if (_jmeDictionary != null)
+                    {
+                        foreach (var (segment, entry) in results)
+                        {
+                            var glosses = entry.Senses.SelectMany(s => s.Glosses).Select(g => g.Text).ToList();
+                            var formatted = FormatEntry(entry, segment);
+                            //Console.WriteLine(formatted);
+                            // Do something with the English glosses
+                        }
+                    }
+
+                    // Dictionary of segment → entry ---> make this an option, because it's really not needed here
+                    //if (_jmeDictionary != null) dict = _jmeDictionary.GetEntriesFor(text, asDictionary: true) as Dictionary<string, JMDictEntry>;
+
+
+
+                    Console.WriteLine("\n================== BY DIRECT NEW (Only words with Kanji) =========================\n");
+
+                    var s = Stopwatch.StartNew();
+                    if (_jmeDictionary != null) results = _jmeDictionary.SegmentAndLookupDirect(text, onlyWithKanji: true, allowPartialFallback: true);
+                    int stime = (int)s.ElapsedMilliseconds;
+
+                    if (_jmeDictionary != null)
+                    {
+                        foreach (var (segment, entry) in results)
+                        {
+                            var glosses = entry.Senses.SelectMany(s => s.Glosses).Select(g => g.Text).ToList();
+                            var formatted = FormatEntry(entry, segment);
+                            //Console.WriteLine(formatted);
+                            // Do something with the English glosses
+                        }
+                    }
+
+                    Console.WriteLine("\n================== BY DIRECT OLD (All characters incl single kana) =========================\n");
+
+                    var s0 = Stopwatch.StartNew();
+                    if (_jmeDictionary != null) results = _jmeDictionary.GetEntriesFor(text, distinct: true, englishOnly: true,onlyWithKanji:true) as List<(string Segment, JMDictEntry Entry)>;
+                    int s0time = (int)s0.ElapsedMilliseconds;
+
+                    if (_jmeDictionary != null)
+                        foreach (var (segment, entry) in results)
+                        {
+                            var glosses = entry.Senses.SelectMany(s => s.Glosses).Select(g => g.Text).ToList();
+                            var formatted = FormatEntry(entry, segment);
+                            //Console.WriteLine(formatted);
+                            // Do something with the English glosses
+                        }
+
+
+                    if (_jmeDictionary != null)
+                    { 
+                        if (useHashLookup)
+                        {
+
+                            Console.WriteLine("\n================== BY HASH =========================\n");
+
+                            var s1 = Stopwatch.StartNew();
+                            if (_jmeDictionary != null) results = _jmeDictionary.GetEntriesForByHash(text, distinct: true, englishOnly: true) as List<(string Segment, JMDictEntry Entry)>;
+                            int s1time = (int)s1.ElapsedMilliseconds;
+
+                            foreach (var (segment, entry) in results)
+                            {
+                                var glosses = entry.Senses.SelectMany(s => s.Glosses).Select(g => g.Text).ToList();
+                                var formatted = FormatEntry(entry, segment);
+                                //Console.WriteLine(formatted);
+                                // Do something with the English glosses
+                            }
+                            Console.WriteLine($"\nWordLookup Hash Time: {s1time} ms");
+                        }
+                    }
+
+                    Console.WriteLine($"\nDirect English Only: {s3time} ms");
+                    Console.WriteLine($"Words with Kanji Only: {stime} ms");
+                    Console.WriteLine($"Direct Old - all kana: {s0time} ms");
+
+
+                    //jm_definitions = _jmeDictionary.LookupSegments(jm_segments, false);
+                    stopwatch = Stopwatch.StartNew();
                     var segments    = _edictDictionary.SegmentJapanese(text, false);
 
                     segmentTime = stopwatch.ElapsedMilliseconds;
 
-                    var definitions = _edictDictionary.LookupDefinitions(segments, false);
+                    definitions = _edictDictionary.LookupDefinitions(segments, false);
 
                     lookupTime = stopwatch.ElapsedMilliseconds;
 
                     Console.WriteLine("\n===========================================\n");
+
                     foreach (string def in definitions)
                     {
-                        if(!quiet) Console.WriteLine($"{def}");
+                        _logger_kanji.Log($"{Emoji.Fire} {def}");   // <-- 💾 this line saves to file
+                        wordCount++;
+                    }
 
-                        _logger_kanji.Log($"{Emoji.Fire} {def}"); // <-- 💾 this line saves to file
+                    loggingTime = stopwatch.ElapsedMilliseconds;
+
+                    foreach (string def in definitions)
+                    {
+                        _logger_kanji.Log($"{Emoji.Fire} {def}");   // <-- 💾 this line saves to file
                         wordCount++;
                     }
 
@@ -165,22 +287,57 @@ namespace MainProject
                 }
 
                 stopwatch.Stop();
-                Console.WriteLine($"Unique Kanji: {kanjiCount}\nUnique Kanji Words: {wordCount}");
+                
+                Console.WriteLine($"Unique Kanji: {kanjiCount}\nUnique Words: {wordCount}");
 
                 Console.WriteLine("\n===========================================\n");
 
                 Console.WriteLine($"Segment: {segmentTime} ms");
-                Console.WriteLine($"Lookup : {lookupTime} ms");
+                Console.WriteLine($"Lookup : {lookupTime}  ms");
                 Console.WriteLine($"Logging: {loggingTime} ms");
                 Console.WriteLine($"Process: {stopwatch.ElapsedMilliseconds} ms");
 
                 Console.WriteLine("\n===========================================\n");
-
+                
 
                 Program.logger_event.Log($"{Emoji.Check} | Characters : {text.Length.ToString()} | Unique Kanji: {kanjiCount} | Unique Words: {wordCount} | Process Time: {loggingTime}");
 
+
+                /*
+                if (Program.DebugMode)
+                {
+                    if (kanjis != null && kanjis.Count > 0)
+                    {
+                        Console.WriteLine("\n================= KANJI ===================\n");
+                        foreach (KanjiEntry res in kanjis)  { Console.WriteLine($"{res.Literal} : {string.Join(", ", res.Meanings)}"); }
+                        Console.WriteLine("\n================= WORDS ===================\n");
+                        foreach (string def in definitions) { Console.WriteLine($"{def}"); }
+                    }
+                    // Determine the single to compound ratio : hint 
+                    // Console.WriteLine($"Single Kanjis: {singles} \n Kanji Words: {compounds}");
+                }
+                */
+
             });
 
+        }
+
+        public static string FormatEntry(JMDictEntry entry, string? segmentOverride = null)
+        {
+            var kanji = entry.KanjiElements.Select(k => k.Keb).ToList();
+            var readings = entry.ReadingElements.Select(r => r.Reb).ToList();
+            var glosses = entry.Senses
+                .SelectMany(s => s.Glosses)
+                .Where(g => g.Language == "eng")
+                .Select(g => g.Text)
+                .Distinct()
+                .ToList();
+
+            string headword = segmentOverride ?? (kanji.FirstOrDefault() ?? readings.FirstOrDefault() ?? "???");
+            string readingText = readings.Count > 0 ? $"（{string.Join("・", readings)}）" : "";
+            string glossText = "- " + string.Join("\n- ", glosses);
+
+            return $"{headword}{readingText}\n{glossText}";
         }
 
         public static void RunInConsole(bool init = false, bool verbose = false)
