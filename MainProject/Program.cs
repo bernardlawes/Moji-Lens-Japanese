@@ -8,6 +8,11 @@ using System.Text;
 using csharp_journal;
 using System.IO;
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.Text.Json;
+
 namespace MainProject;
 
 
@@ -56,7 +61,7 @@ class Program
     static string edictfilename = @"edict2";
     static string kanjiPath = System.IO.Path.Combine(libFolderPath, kanjifilename);
     static string edictPath = System.IO.Path.Combine(libFolderPath, edictfilename);
-    static string jmdict_Path = System.IO.Path.Combine(libFolderPath, jmdict_e_filename);
+    public static string jmdict_Path = System.IO.Path.Combine(libFolderPath, jmdict_e_filename);
     
     public static string basePath    = AppContext.BaseDirectory;
     //public static string projPath    = string.Empty; // Directory.GetParent(AppContext.BaseDirectory)?.Parent?.Parent?.Parent?.FullName;
@@ -117,7 +122,13 @@ class Program
 
         bool_App_Loaded = ApplicationConfiguration_Initialize() ? true : MessageBox.Show(" Application Configuration Failed.", "Configuration Error") == DialogResult.OK && false;
 
-        if (bool_App_Loaded) ConsoleHelper.HideConsole();
+        //if (bool_App_Loaded) ConsoleHelper.HideConsole();
+
+
+
+
+
+
 
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.

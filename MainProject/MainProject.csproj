@@ -9,6 +9,7 @@
     <ProjectReference Include="..\csharp-graphemes\csharp-graphemes.csproj" />
     <ProjectReference Include="..\csharp-networking\csharp-networking.csproj" />
     <ProjectReference Include="..\csharp-uistudio\csharp-uistudio.csproj" />
+    <ProjectReference Include="..\MojiLens.Api\MojiLens.Api.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

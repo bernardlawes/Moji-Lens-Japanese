@@ -1,4 +1,7 @@
-﻿using csharp_peripherals;
+﻿using csharp_dictionary_japanese;
+using csharp_peripherals;
+using Microsoft.AspNetCore.Builder;
+using System.Text.Json;
 
 namespace MainProject;
 
@@ -43,5 +46,10 @@ public partial class Form1 : Form
         Thread.Sleep(100); // Let the console spin up
 
         Utilities.RunInConsoleClipboard();
+    }
+
+    private void button_api_Click(object sender, EventArgs e)
+    {
+        Utilities.API_Start();
     }
 }

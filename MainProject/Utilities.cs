@@ -7,6 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using csharp_journal;
+using Microsoft.AspNetCore.Builder;
+using System.Text.Json;
+
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.Text.Json;
 
 namespace MainProject
 {
@@ -14,13 +22,39 @@ namespace MainProject
     {
         // Instantiate the object with user input
         static KanjiDict2_Reader _kanjiDictionary;
-        static JMDict_e_Reader _jmeDictionary;
+        static JMDict_Reader _jmeDictionary;
         static EDict2_Reader _edictDictionary;
         static Kanji_API_Client _kanjiAPIClient;
         static ChronoLogger _logger_kanji;
         
         static bool useHashLookup = false;
         static string userInput = string.Empty;
+
+
+        public static void API_Start()
+        {
+            var builder = WebApplication.CreateBuilder();
+            var app = builder.Build();
+
+            var reader = new JMDict_Reader(Program.jmdict_Path, false);
+            reader.LoadDictionary(false);
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = false,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                //Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            app.MapGet("/lookup", (string word) =>
+            {
+                return reader.Records.TryGetValue(word, out var entry)
+                    ? Results.Json(entry, jsonOptions)
+                    : Results.NotFound();
+            });
+
+            app.Run();
+        }
 
         public static void MeasureTime(string label, Action action)
         {
@@ -60,8 +94,8 @@ namespace MainProject
             if (File.Exists(jmdict_Path))
             {
                 string jmdict_filename = System.IO.Path.GetFileName(jmdict_Path);
-                _jmeDictionary = new JMDict_e_Reader(jmdict_Path, useHashLookup);
-                msg = (_jmeDictionary.RecordCount == 0) ? $"Error: No records found in the {jmdict_filename} file." : $"Loaded {_jmeDictionary.RecordCount} entries from the {jmdict_filename} file.";
+                _jmeDictionary = new JMDict_Reader(jmdict_Path, useHashLookup);
+                msg = (_jmeDictionary.RecordCount == 0) ? $"Error: No records found in the {jmdict_filename} file." : $"JMDict Records Loaded: {_jmeDictionary.RecordCount} entries.";
                 if (_jmeDictionary.RecordCount == 0) return false;
                 Program.logger_event.Log($"{Emoji.Clock} | {msg}");
                 Console.WriteLine(msg);
@@ -191,6 +225,12 @@ namespace MainProject
                     // Dictionary of segment → entry ---> make this an option, because it's really not needed here
                     //if (_jmeDictionary != null) dict = _jmeDictionary.GetEntriesFor(text, asDictionary: true) as Dictionary<string, JMDictEntry>;
 
+                    // Search with Scoring
+                    var matches = _jmeDictionary.SearchWithScoring("がく", kanjiOnly: false);
+                    foreach (var match in matches)
+                    {
+                        Console.WriteLine($"Score: {match.Score} — {string.Join("/", match.Entry.KanjiElements.Select(k => k.Keb))}");
+                    }
 
 
                     Console.WriteLine("\n================== BY DIRECT NEW (Only words with Kanji) =========================\n");
