@@ -19,7 +19,6 @@ reader.LoadDictionary(boolHashLookup: false);
 
 
 
-
 // JSON settings for cleaner output
 var jsonOptions = new JsonSerializerOptions
 {
