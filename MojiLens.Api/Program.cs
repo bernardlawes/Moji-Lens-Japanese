@@ -58,8 +58,14 @@ app.MapGet("/search", (string query, bool kanjiOnly = false) =>
 // Optional: GET /entry/123456
 app.MapGet("/entry/{entSeq}", (int entSeq) =>
 {
-    var match = reader.Records.Values.FirstOrDefault(e => e.EntSeq == entSeq);
-    return match != null ? Results.Json(match, jsonOptions) : Results.NotFound();
+    // Find all entries matching the entSeq in the records dictionary
+    var matches = reader.Records.Values
+        .SelectMany(entries => entries) // Flatten the list of lists into a single collection of entries
+        .Where(e => e.EntSeq == entSeq) // Filter by EntSeq
+        .ToList();
+
+    return matches.Any() ? Results.Json(matches, jsonOptions) : Results.NotFound();
 });
 
 app.Run();
+
