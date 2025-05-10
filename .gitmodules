@@ -13,6 +13,3 @@
 [submodule "csharp-networking"]
 	path = csharp-networking
 	url = https://github.com/bernardlawes/csharp-networking.git
-[submodule "csharp-uistudio"]
-	path = csharp-uistudio
-	url = https://github.com/bernardlawes/csharp-uistudio.git
