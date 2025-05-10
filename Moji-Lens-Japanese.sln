@@ -23,6 +23,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp-uistudio", "csharp-u
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MojiLens.Api", "MojiLens.Api\MojiLens.Api.csproj", "{81FF8978-FF2B-4555-A946-2E3261673EB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp-encryption", "csharp-encryption\csharp-encryption.csproj", "{35A2403D-C678-42F8-A9BF-4D11555E8705}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "csharp-sqlite-jisho", "csharp-sqlite-jisho", "{C2B642C8-2590-31B6-49FB-B84997179DC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp-sqlite-jisho", "csharp-sqlite-jisho\csharp-sqlite-jisho\csharp-sqlite-jisho.csproj", "{90D3039A-ADC0-464E-891A-1E938E974B86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,9 +159,36 @@ Global
 		{81FF8978-FF2B-4555-A946-2E3261673EB2}.Release|x64.Build.0 = Release|Any CPU
 		{81FF8978-FF2B-4555-A946-2E3261673EB2}.Release|x86.ActiveCfg = Release|Any CPU
 		{81FF8978-FF2B-4555-A946-2E3261673EB2}.Release|x86.Build.0 = Release|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Debug|x64.Build.0 = Debug|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Debug|x86.Build.0 = Debug|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Release|x64.ActiveCfg = Release|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Release|x64.Build.0 = Release|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Release|x86.ActiveCfg = Release|Any CPU
+		{35A2403D-C678-42F8-A9BF-4D11555E8705}.Release|x86.Build.0 = Release|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Debug|x64.Build.0 = Debug|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Debug|x86.Build.0 = Debug|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Release|x64.ActiveCfg = Release|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Release|x64.Build.0 = Release|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Release|x86.ActiveCfg = Release|Any CPU
+		{90D3039A-ADC0-464E-891A-1E938E974B86}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{90D3039A-ADC0-464E-891A-1E938E974B86} = {C2B642C8-2590-31B6-49FB-B84997179DC5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6F585220-C2E5-4B81-9B16-E371149C3FCB}

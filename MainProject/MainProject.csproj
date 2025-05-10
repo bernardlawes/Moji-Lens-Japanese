@@ -10,6 +10,8 @@
     <ProjectReference Include="..\csharp-networking\csharp-networking.csproj" />
     <ProjectReference Include="..\csharp-uistudio\csharp-uistudio.csproj" />
     <ProjectReference Include="..\MojiLens.Api\MojiLens.Api.csproj" />
+    <ProjectReference Include="..\csharp-encryption\csharp-encryption.csproj" />
+    <ProjectReference Include="..\csharp-sqlite-jisho\csharp-sqlite-jisho\csharp-sqlite-jisho.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
