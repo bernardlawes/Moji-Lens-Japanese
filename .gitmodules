@@ -12,3 +12,6 @@
 [submodule "csharp-encryption"]
 	path = csharp-encryption
 	url = https://github.com/bernardlawes/csharp-encryption.git
+[submodule "csharp-sqlite-jisho"]
+	path = csharp-sqlite-jisho
+	url = https://github.com/bernardlawes/csharp-sqlite-jisho.git
