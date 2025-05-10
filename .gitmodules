@@ -9,3 +9,6 @@
 	url = https://github.com/bernardlawes/csharp-peripherals.git
 	path = csharp-networking
 	url = https://github.com/bernardlawes/csharp-networking.git
+[submodule "csharp-encryption"]
+	path = csharp-encryption
+	url = https://github.com/bernardlawes/csharp-encryption.git
